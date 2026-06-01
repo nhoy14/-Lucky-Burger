@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Log, calculate, and format daily defective items for Lucky Burger branches.">
+  <title>Lucky Burger Defect Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo-section">
+        <div class="logo-icon">🍔</div>
+        <div class="logo-text">
+          <h1>Lucky Burger</h1>
+          <p>Defect Tracker</p>
+        </div>
+      </div>
+      
+      <button class="menu-toggle-btn" id="menu-toggle" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <nav class="nav-links" id="nav-menu">
+        <a href="index.html" class="nav-btn active" id="nav-home">
+          <i data-lucide="clipboard-list"></i> Tracker
+        </a>
+        <a href="admin.html" class="nav-btn" id="nav-admin">
+          <i data-lucide="settings"></i> Admin Panel
+        </a>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="grid-2col">
+      <!-- Left Panel: Input Form -->
+      <section class="glass-panel">
+        <h2 style="margin-bottom: 20px;">Daily Defect Entry</h2>
+        
+        <form id="defect-form" onsubmit="event.preventDefault();">
+          <!-- Metadata (Branch, Date) -->
+          <div class="meta-controls">
+            <div class="input-group">
+              <label for="branch-select">Branch Code</label>
+              <input type="text" id="branch-select" class="styled-input" value="LBCHM" placeholder="e.g. LBCHM" required>
+            </div>
+            <div class="input-group">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label for="date-select">Report Date</label>
+                <button type="button" id="btn-set-today" class="text-btn">Today</button>
+              </div>
+              <input type="date" id="date-select" class="styled-input" required>
+            </div>
+          </div>
+
+          <!-- Items Inputs Container -->
+          <div class="defect-list" id="inputs-container">
+            <div class="text-center" style="padding: 20px; color: var(--text-muted);">
+              Loading tracking items...
+            </div>
+          </div>
+
+          <!-- Stats Summary -->
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-label">Total Records</div>
+              <div class="stat-val" id="total-records-display">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Weight</div>
+              <div class="stat-val" id="total-weight-display">0.000 kg</div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="btn-grid">
+            <button type="button" class="btn btn-secondary" id="btn-clear">
+              <i data-lucide="rotate-ccw"></i> Clear Form
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Panel: Output & Copy Section -->
+      <section class="glass-panel" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+        <div>
+          <div class="preview-title">
+            <h2>Report Preview</h2>
+            <span class="preview-badge">Ready to Share</span>
+          </div>
+          
+          <div class="output-box" id="report-output">
+<!-- Generated message will appear here -->
+          </div>
+        </div>
+
+        <div class="btn-grid" style="margin-top: 20px;">
+          <button type="button" class="btn btn-primary" id="btn-copy-report">
+            <i data-lucide="copy"></i> Copy Report Text
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-save-log" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: var(--success);">
+            <i data-lucide="database"></i> Save to Database History
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Mobile Menu Backdrop -->
+  <div class="menu-backdrop" id="menu-backdrop"></div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <i data-lucide="check-circle-2"></i>
+    <span id="toast-message">Success!</span>
+  </div>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Frontend Javascript -->
+  <script src="app.js"></script>
+</body>
+</html>

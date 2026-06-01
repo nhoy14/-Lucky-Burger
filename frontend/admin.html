@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage tracking items and view reporting logs for the Lucky Burger Defect Tracker.">
+  <title>Admin Dashboard - Lucky Burger Defect Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo-section">
+        <div class="logo-icon">🍔</div>
+        <div class="logo-text">
+          <h1>Lucky Burger</h1>
+          <p>Admin Dashboard</p>
+        </div>
+      </div>
+      
+      <button class="menu-toggle-btn" id="menu-toggle" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <nav class="nav-links" id="nav-menu">
+        <a href="index.html" class="nav-btn" id="nav-home">
+          <i data-lucide="clipboard-list"></i> Tracker
+        </a>
+        <a href="admin.html" class="nav-btn active" id="nav-admin">
+          <i data-lucide="settings"></i> Admin Panel
+        </a>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main style="display: flex; flex-direction: column; gap: 32px;">
+      
+      <!-- Section 1: Item Manager CRUD -->
+      <section class="glass-panel">
+        <div class="admin-card-header">
+          <h2>Defect Items Manager</h2>
+          <span class="preview-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">Item Configuration</span>
+        </div>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
+          Add, edit, or delete items. These items will immediately show up as inputs on the main Tracker page.
+        </p>
+
+        <!-- Form to Add / Edit Item -->
+        <form id="item-form" class="horizontal-form" onsubmit="event.preventDefault();">
+          <input type="hidden" id="form-item-id" value="">
+          <div class="input-group">
+            <label for="item-name">Item Name</label>
+            <input type="text" id="item-name" class="styled-input" placeholder="e.g. Iceberg" required>
+          </div>
+          <div class="input-group" style="max-width: 150px;">
+            <label for="item-unit">Unit</label>
+            <input type="text" id="item-unit" class="styled-input" value="kg" placeholder="e.g. kg" required>
+          </div>
+          <button type="submit" class="btn btn-primary" id="btn-save-item" style="padding: 12px 24px;">
+            <i data-lucide="plus-circle"></i> <span id="form-submit-text">Add Item</span>
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-cancel-edit" style="padding: 12px 24px; display: none;">
+            Cancel
+          </button>
+        </form>
+
+        <!-- Items Table -->
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 80px;">ID</th>
+                <th>Item Name</th>
+                <th style="width: 120px;">Unit</th>
+                <th style="width: 160px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="items-table-body">
+              <tr>
+                <td colspan="4" class="text-center" style="color: var(--text-muted); padding: 30px;">
+                  Loading items...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 2: Defect History Log -->
+      <section class="glass-panel">
+        <div class="admin-card-header">
+          <h2>Defect Report Logs</h2>
+          <span class="preview-badge">Saved History</span>
+        </div>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
+          View logs stored in the local server database. Copy formatted reports back into clipboard or delete obsolete entries.
+        </p>
+
+        <!-- History Table -->
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 80px;">Log ID</th>
+                <th style="width: 150px;">Date</th>
+                <th style="width: 120px;">Branch</th>
+                <th>Defective Items Logged</th>
+                <th style="width: 130px; text-align: right;">Total Weight</th>
+                <th style="width: 140px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr>
+                <td colspan="6" class="text-center" style="color: var(--text-muted); padding: 30px;">
+                  Loading history logs...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Mobile Menu Backdrop -->
+  <div class="menu-backdrop" id="menu-backdrop"></div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <i data-lucide="check-circle-2"></i>
+    <span id="toast-message">Success!</span>
+  </div>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Admin Javascript logic -->
+  <script src="admin.js"></script>
+</body>
+</html>

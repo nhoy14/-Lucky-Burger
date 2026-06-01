@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Iceberg",
+      "unit": "kg"
+    },
+    {
+      "id": 2,
+      "name": "Tomato",
+      "unit": "kg"
+    },
+    {
+      "id": 3,
+      "name": "Onion",
+      "unit": "kg"
+    },
+    {
+      "id": 4,
+      "name": "Rice",
+      "unit": "kg"
+    },
+    {
+      "id": 5,
+      "name": "Chicken",
+      "unit": "kg"
+    },
+    {
+      "id": 6,
+      "name": "gfhgfd",
+      "unit": "kg"
+    },
+    {
+      "id": 7,
+      "name": "gfhgfd",
+      "unit": "43545"
+    }
+  ],
+  "history": []
+}
