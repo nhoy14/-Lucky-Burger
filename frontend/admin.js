@@ -13,64 +13,141 @@ const itemUnitInput = document.getElementById('item-unit');
 const btnSaveItem = document.getElementById('btn-save-item');
 const formSubmitText = document.getElementById('form-submit-text');
 const btnCancelEdit = document.getElementById('btn-cancel-edit');
-const itemsTableBody = document.getElementById('items-table-body');
+const itemsListContainer = document.getElementById('items-list-container');
 const historyTableBody = document.getElementById('history-table-body');
 const toastElement = document.getElementById('toast');
 const toastMessageElement = document.getElementById('toast-message');
+const btnToggleForm = document.getElementById('btn-toggle-form');
+const formContainer = document.getElementById('collapsible-form-container');
+// Helper to update Lucide icons dynamically without breaking after conversion to SVG
+function updateIcon(targetElement, newIconName) {
+  if (!targetElement) return;
+  const newIcon = document.createElement('i');
+  if (targetElement.id) newIcon.id = targetElement.id;
+  if (targetElement.className) newIcon.className = targetElement.className;
+  newIcon.setAttribute('data-lucide', newIconName);
+  targetElement.parentNode.replaceChild(newIcon, targetElement);
+  if (window.lucide) window.lucide.createIcons();
+}
+
+// Collapsible Form Management
+function toggleForm() {
+  const isOpen = formContainer.classList.contains('open');
+  if (isOpen) {
+    closeForm();
+  } else {
+    openForm();
+  }
+}
+
+function openForm() {
+  formContainer.classList.add('open');
+  const icon = document.getElementById('toggle-form-icon');
+  updateIcon(icon, 'x');
+}
+
+function closeForm() {
+  formContainer.classList.remove('open');
+  const icon = document.getElementById('toggle-form-icon');
+  updateIcon(icon, 'plus');
+  resetItemForm();
+}
 
 // Fetch and Render Items
 async function fetchItems() {
   try {
-    const response = await fetch(`${API_BASE}/api/items`);
+    const response = await fetch(`${API_BASE}/api/items`, { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load items');
     items = await response.json();
-    renderItemsTable();
+    renderItemsList();
   } catch (error) {
     showToast(error.message, 'error');
   }
 }
 
-function renderItemsTable() {
-  itemsTableBody.innerHTML = '';
+function renderItemsList() {
+  itemsListContainer.innerHTML = '';
   
   if (items.length === 0) {
-    itemsTableBody.innerHTML = `
-      <tr>
-        <td colspan="4" class="text-center" style="color: var(--text-muted); padding: 30px;">
-          No items found. Add your first item above!
-        </td>
-      </tr>`;
+    itemsListContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🍔</div>
+        <p>No items found. Click the + button above to add your first item!</p>
+      </div>`;
     return;
   }
 
-  items.forEach((item) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="bold primary-color">#${item.id}</td>
-      <td class="bold">${item.name}</td>
-      <td><span class="chip">${item.unit}</span></td>
-      <td style="text-align: right;">
+  items.forEach((item, index) => {
+    const itemRow = document.createElement('div');
+    itemRow.className = 'item-row';
+    
+    // Check toggle switch state (default to true if active is not explicitly false)
+    const isActive = item.active !== false;
+    const checkedAttribute = isActive ? 'checked' : '';
+
+    itemRow.innerHTML = `
+      <div class="item-info">
+        <span class="item-index">${index + 1}</span>
+        <span class="item-name">${item.name} <span class="chip">${item.unit}</span></span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
         <button type="button" class="icon-btn edit-btn" data-id="${item.id}" title="Edit Item">
           <i data-lucide="edit-3"></i>
         </button>
         <button type="button" class="icon-btn delete delete-btn" data-id="${item.id}" title="Delete Item">
           <i data-lucide="trash-2"></i>
         </button>
-      </td>
+        <label class="switch" title="Toggle Visibility">
+          <input type="checkbox" class="toggle-active-btn" data-id="${item.id}" ${checkedAttribute}>
+          <span class="slider"></span>
+        </label>
+      </div>
     `;
-    itemsTableBody.appendChild(tr);
+    itemsListContainer.appendChild(itemRow);
   });
 
   // Attach button event listeners
   document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => editItem(parseInt(btn.getAttribute('data-id'))));
+    btn.addEventListener('click', () => {
+      openForm();
+      editItem(parseInt(btn.getAttribute('data-id')));
+    });
   });
 
   document.querySelectorAll('.delete-btn').forEach(btn => {
     btn.addEventListener('click', () => deleteItem(parseInt(btn.getAttribute('data-id'))));
   });
 
+  document.querySelectorAll('.toggle-active-btn').forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+      const id = parseInt(checkbox.getAttribute('data-id'));
+      const activeState = checkbox.checked;
+      toggleItemActive(id, activeState);
+    });
+  });
+
   if (window.lucide) window.lucide.createIcons();
+}
+
+async function toggleItemActive(id, active) {
+  try {
+    const response = await fetch(`${API_BASE}/api/items/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active })
+    });
+    if (!response.ok) throw new Error('Failed to update status');
+    
+    // Update local state
+    const item = items.find(i => i.id === id);
+    if (item) item.active = active;
+    
+    showToast(`Status updated successfully!`);
+  } catch (error) {
+    showToast(error.message, 'error');
+    // Re-render to revert toggle state
+    renderItemsList();
+  }
 }
 
 // Item CRUD Actions
@@ -107,7 +184,7 @@ async function handleItemFormSubmit(e) {
     if (!response.ok) throw new Error(isEditing ? 'Failed to update item' : 'Failed to create item');
 
     showToast(isEditing ? 'Item updated successfully!' : 'Item created successfully!');
-    resetItemForm();
+    closeForm();
     fetchItems();
   } catch (error) {
     showToast(error.message, 'error');
@@ -126,9 +203,8 @@ function editItem(id) {
   btnCancelEdit.style.display = "inline-flex";
   
   // Icon update for submit button
-  const icon = btnSaveItem.querySelector('i');
-  if (icon) icon.setAttribute('data-lucide', 'check');
-  if (window.lucide) window.lucide.createIcons();
+  const icon = btnSaveItem.querySelector('i, svg');
+  updateIcon(icon, 'check');
   
   itemNameInput.focus();
 }
@@ -141,9 +217,8 @@ function resetItemForm() {
   formSubmitText.textContent = "Add Item";
   btnCancelEdit.style.display = "none";
   
-  const icon = btnSaveItem.querySelector('i');
-  if (icon) icon.setAttribute('data-lucide', 'plus-circle');
-  if (window.lucide) window.lucide.createIcons();
+  const icon = btnSaveItem.querySelector('i, svg');
+  updateIcon(icon, 'plus-circle');
 }
 
 async function deleteItem(id) {
@@ -166,7 +241,7 @@ async function deleteItem(id) {
 // Fetch and Render History Logs
 async function fetchHistory() {
   try {
-    const response = await fetch(`${API_BASE}/api/history`);
+    const response = await fetch(`${API_BASE}/api/history`, { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load history logs');
     historyLogs = await response.json();
     renderHistoryTable();
@@ -213,7 +288,7 @@ function renderHistoryTable() {
       <td><span class="bold">#${log.id}</span></td>
       <td><span class="bold text-muted">${formattedDate}</span></td>
       <td><span class="chip" style="font-weight:600;">${log.branch}</span></td>
-      <td><div style="max-height: 80px; overflow-y: auto;">${itemsMarkup}</div></td>
+      <td><div class="logged-items-list">${itemsMarkup}</div></td>
       <td style="text-align: right;" class="bold primary-color">${log.total_weight.toFixed(3)} kg</td>
       <td style="text-align: right;">
         <button type="button" class="icon-btn copy-log-btn" data-id="${log.id}" title="Copy Formatted Text">
@@ -286,19 +361,15 @@ function showToast(message, type = 'success') {
   toastMessageElement.textContent = message;
   toastElement.className = `toast show ${type}`;
   
-  const icon = toastElement.querySelector('i');
+  const icon = toastElement.querySelector('i, svg');
+  updateIcon(icon, type === 'error' ? 'alert-circle' : 'check-circle-2');
+  
   if (type === 'error') {
-    icon.setAttribute('data-lucide', 'alert-circle');
     toastElement.style.background = '#ef4444';
     toastElement.style.color = '#ffffff';
   } else {
-    icon.setAttribute('data-lucide', 'check-circle-2');
     toastElement.style.background = '#10b981';
     toastElement.style.color = '#000000';
-  }
-  
-  if (window.lucide) {
-    window.lucide.createIcons();
   }
 
   setTimeout(() => {
@@ -326,11 +397,8 @@ function initMobileMenu() {
         document.body.style.overflow = '';
       }
 
-      const icon = menuToggle.querySelector('i');
-      if (icon) {
-        icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
-        if (window.lucide) window.lucide.createIcons();
-      }
+      const icon = menuToggle.querySelector('i, svg');
+      updateIcon(icon, isOpen ? 'x' : 'menu');
     };
 
     menuToggle.addEventListener('click', (e) => {
@@ -360,5 +428,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
 
   itemForm.addEventListener('submit', handleItemFormSubmit);
-  btnCancelEdit.addEventListener('click', resetItemForm);
+  btnCancelEdit.addEventListener('click', closeForm);
+  if (btnToggleForm) {
+    btnToggleForm.addEventListener('click', toggleForm);
+  }
 });

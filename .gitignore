@@ -7,3 +7,9 @@ ENV/
 *.log
 .DS_Store
 Thumbs.db
+
+# Database and Backup Files
+backend/*.sqlite
+backend/*.bak
+db.sqlite
+db.json.bak

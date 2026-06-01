@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Log, calculate, and format daily defective items for Lucky Burger branches.">
   <title>Lucky Burger Defect Tracker</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=1.0.4">
 </head>
 <body>
   <div class="container">
@@ -75,16 +75,19 @@
           </div>
 
           <!-- Form Actions -->
-          <div class="btn-grid">
+          <div class="btn-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <button type="button" class="btn btn-secondary" id="btn-clear">
               <i data-lucide="rotate-ccw"></i> Clear Form
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-show-preview" style="color: #000;">
+              <i data-lucide="file-text"></i> OK / Preview
             </button>
           </div>
         </form>
       </section>
 
       <!-- Right Panel: Output & Copy Section -->
-      <section class="glass-panel" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+      <section id="preview-panel" class="glass-panel" style="display: none; flex-direction: column; justify-content: space-between; height: 100%;">
         <div>
           <div class="preview-title">
             <h2>Report Preview</h2>
@@ -120,6 +123,6 @@
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Frontend Javascript -->
-  <script src="app.js"></script>
+  <script src="app.js?v=1.0.4"></script>
 </body>
 </html>

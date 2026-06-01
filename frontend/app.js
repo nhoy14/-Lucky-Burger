@@ -18,6 +18,17 @@ const btnSaveLog = document.getElementById('btn-save-log');
 const toastElement = document.getElementById('toast');
 const toastMessageElement = document.getElementById('toast-message');
 
+// Helper to update Lucide icons dynamically without breaking after conversion to SVG
+function updateIcon(targetElement, newIconName) {
+  if (!targetElement) return;
+  const newIcon = document.createElement('i');
+  if (targetElement.id) newIcon.id = targetElement.id;
+  if (targetElement.className) newIcon.className = targetElement.className;
+  newIcon.setAttribute('data-lucide', newIconName);
+  targetElement.parentNode.replaceChild(newIcon, targetElement);
+  if (window.lucide) window.lucide.createIcons();
+}
+
 // Set default date to local today
 function setDefaultDate() {
   const today = new Date();
@@ -41,7 +52,7 @@ function formatReportDate(dateString) {
 // Fetch items from backend API
 async function fetchItems() {
   try {
-    const response = await fetch(`${API_BASE}/api/items`);
+    const response = await fetch(`${API_BASE}/api/items`, { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load items');
     items = await response.json();
     renderInputs();
@@ -54,15 +65,17 @@ async function fetchItems() {
 function renderInputs() {
   inputsContainer.innerHTML = '';
   
-  if (items.length === 0) {
+  const activeItems = items.filter(item => item.active !== false);
+  
+  if (activeItems.length === 0) {
     inputsContainer.innerHTML = `
       <div class="text-center" style="padding: 20px; color: var(--text-muted);">
-        No tracking items configured. Go to Admin Panel to add items.
+        No active tracking items. Go to Admin Panel to configure items.
       </div>`;
     return;
   }
 
-  items.forEach((item, idx) => {
+  activeItems.forEach((item, idx) => {
     const itemRow = document.createElement('div');
     itemRow.className = 'item-row';
     
@@ -143,7 +156,8 @@ function updateSummary() {
   let totalWeight = 0;
   let reportItemsText = '';
 
-  items.forEach((item) => {
+  const activeItems = items.filter(item => item.active !== false);
+  activeItems.forEach((item) => {
     const val = weights[item.id];
     if (val !== undefined && val > 0) {
       activeRecordsCount++;
@@ -188,6 +202,8 @@ function clearForm() {
     if (input) input.value = '';
   });
   updateSummary();
+  const previewPanel = document.getElementById('preview-panel');
+  if (previewPanel) previewPanel.style.display = 'none';
   showToast('Form cleared');
 }
 
@@ -210,7 +226,8 @@ async function saveReportToHistory() {
   const loggedItems = [];
   let totalW = 0;
 
-  items.forEach(item => {
+  const activeItems = items.filter(item => item.active !== false);
+  activeItems.forEach(item => {
     const val = weights[item.id];
     if (val !== undefined && val > 0) {
       loggedItems.push({
@@ -259,20 +276,15 @@ function showToast(message, type = 'success') {
   toastMessageElement.textContent = message;
   toastElement.className = `toast show ${type}`;
   
-  // Icon customization depending on toast type
-  const icon = toastElement.querySelector('i');
+  const icon = toastElement.querySelector('i, svg');
+  updateIcon(icon, type === 'error' ? 'alert-circle' : 'check-circle-2');
+  
   if (type === 'error') {
-    icon.setAttribute('data-lucide', 'alert-circle');
     toastElement.style.background = '#ef4444';
     toastElement.style.color = '#ffffff';
   } else {
-    icon.setAttribute('data-lucide', 'check-circle-2');
     toastElement.style.background = '#10b981';
     toastElement.style.color = '#000000';
-  }
-  
-  if (window.lucide) {
-    window.lucide.createIcons();
   }
 
   setTimeout(() => {
@@ -300,11 +312,8 @@ function initMobileMenu() {
         document.body.style.overflow = '';
       }
 
-      const icon = menuToggle.querySelector('i');
-      if (icon) {
-        icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
-        if (window.lucide) window.lucide.createIcons();
-      }
+      const icon = menuToggle.querySelector('i, svg');
+      updateIcon(icon, isOpen ? 'x' : 'menu');
     };
 
     menuToggle.addEventListener('click', (e) => {
@@ -339,6 +348,25 @@ document.addEventListener('DOMContentLoaded', () => {
   btnClear.addEventListener('click', clearForm);
   btnCopyReport.addEventListener('click', copyReportText);
   btnSaveLog.addEventListener('click', saveReportToHistory);
+
+  const btnShowPreview = document.getElementById('btn-show-preview');
+  if (btnShowPreview) {
+    btnShowPreview.addEventListener('click', () => {
+      const previewSection = document.getElementById('preview-panel');
+      if (previewSection) {
+        previewSection.style.display = 'flex';
+        // Tiny timeout to let browser calculate layouts before scrolling
+        setTimeout(() => {
+          previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Highlight preview panel border briefly
+          previewSection.style.borderColor = 'var(--primary)';
+          setTimeout(() => {
+            previewSection.style.borderColor = 'var(--card-border)';
+          }, 1200);
+        }, 50);
+      }
+    });
+  }
 
   const btnSetToday = document.getElementById('btn-set-today');
   if (btnSetToday) {

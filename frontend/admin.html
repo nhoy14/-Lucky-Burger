@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Manage tracking items and view reporting logs for the Lucky Burger Defect Tracker.">
   <title>Admin Dashboard - Lucky Burger Defect Tracker</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=1.0.4">
 </head>
 <body>
   <div class="container">
@@ -13,9 +13,9 @@
     <header>
       <div class="logo-section">
         <div class="logo-icon">🍔</div>
-        <div class="logo-text">
+        <div class="logo-text" style="display: flex; align-items: baseline; gap: 8px;">
           <h1>Lucky Burger</h1>
-          <p>Admin Dashboard</p>
+          <span style="font-size: 14px; font-weight: 600; color: var(--text-muted); border-left: 1px solid rgba(255,255,255,0.15); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block;">Admin</span>
         </div>
       </div>
       
@@ -39,51 +39,41 @@
       <!-- Section 1: Item Manager CRUD -->
       <section class="glass-panel">
         <div class="admin-card-header">
-          <h2>Defect Items Manager</h2>
-          <span class="preview-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">Item Configuration</span>
+          <h2>Setting</h2>
+          <button type="button" class="add-settings-btn" id="btn-toggle-form" title="Toggle Add Item Form">
+            <i data-lucide="plus" id="toggle-form-icon"></i>
+          </button>
         </div>
         <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
-          Add, edit, or delete items. These items will immediately show up as inputs on the main Tracker page.
+          Configure tracking items and toggle their visibility on the Tracker page.
         </p>
 
-        <!-- Form to Add / Edit Item -->
-        <form id="item-form" class="horizontal-form" onsubmit="event.preventDefault();">
-          <input type="hidden" id="form-item-id" value="">
-          <div class="input-group">
-            <label for="item-name">Item Name</label>
-            <input type="text" id="item-name" class="styled-input" placeholder="e.g. Iceberg" required>
-          </div>
-          <div class="input-group" style="max-width: 150px;">
-            <label for="item-unit">Unit</label>
-            <input type="text" id="item-unit" class="styled-input" value="kg" placeholder="e.g. kg" required>
-          </div>
-          <button type="submit" class="btn btn-primary" id="btn-save-item" style="padding: 12px 24px;">
-            <i data-lucide="plus-circle"></i> <span id="form-submit-text">Add Item</span>
-          </button>
-          <button type="button" class="btn btn-secondary" id="btn-cancel-edit" style="padding: 12px 24px; display: none;">
-            Cancel
-          </button>
-        </form>
+        <!-- Collapsible Form to Add / Edit Item -->
+        <div id="collapsible-form-container" class="collapsible-form">
+          <form id="item-form" class="horizontal-form" onsubmit="event.preventDefault();">
+            <input type="hidden" id="form-item-id" value="">
+            <div class="input-group">
+              <label for="item-name">Item Name</label>
+              <input type="text" id="item-name" class="styled-input" placeholder="e.g. Iceberg" required>
+            </div>
+            <div class="input-group" style="max-width: 150px;">
+              <label for="item-unit">Unit</label>
+              <input type="text" id="item-unit" class="styled-input" value="kg" placeholder="e.g. kg" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-save-item" style="padding: 12px 24px;">
+              <i data-lucide="plus-circle"></i> <span id="form-submit-text">Add Item</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="btn-cancel-edit" style="padding: 12px 24px; display: none;">
+              Cancel
+            </button>
+          </form>
+        </div>
 
-        <!-- Items Table -->
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 80px;">ID</th>
-                <th>Item Name</th>
-                <th style="width: 120px;">Unit</th>
-                <th style="width: 160px; text-align: right;">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="items-table-body">
-              <tr>
-                <td colspan="4" class="text-center" style="color: var(--text-muted); padding: 30px;">
-                  Loading items...
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Items List with Toggles -->
+        <div class="defect-list" id="items-list-container">
+          <div class="text-center" style="padding: 20px; color: var(--text-muted);">
+            Loading items...
+          </div>
         </div>
       </section>
 
@@ -105,7 +95,7 @@
                 <th style="width: 80px;">Log ID</th>
                 <th style="width: 150px;">Date</th>
                 <th style="width: 120px;">Branch</th>
-                <th>Defective Items Logged</th>
+                <th style="min-width: 220px;">Defective Items Logged</th>
                 <th style="width: 130px; text-align: right;">Total Weight</th>
                 <th style="width: 140px; text-align: right;">Actions</th>
               </tr>
@@ -136,6 +126,6 @@
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Admin Javascript logic -->
-  <script src="admin.js"></script>
+  <script src="admin.js?v=1.0.3"></script>
 </body>
 </html>
