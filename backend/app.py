@@ -16,7 +16,8 @@ except ImportError:
         print(f"Failed to install Flask automatically: {e}")
         sys.exit(1)
 
-app = Flask(__name__)
+frontend_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
+app = Flask(__name__, static_folder=frontend_folder, static_url_path='')
 DB_FILE = os.path.join(os.path.dirname(__file__), 'db.sqlite')
 JSON_DB_FILE = os.path.join(os.path.dirname(__file__), 'db.json')
 
@@ -309,6 +310,15 @@ def delete_history(log_id):
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": f"Log {log_id} deleted"})
+
+# Serve frontend static entrypoints
+@app.route('/')
+def serve_index():
+    return app.send_static_file('index.html')
+
+@app.route('/admin')
+def serve_admin():
+    return app.send_static_file('admin.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
