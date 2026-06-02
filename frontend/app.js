@@ -1,5 +1,9 @@
 // Configuration
-const API_BASE = window.location.protocol === 'file:' ? 'http://127.0.0.1:5000' : '';
+const API_BASE = window.location.hostname.endsWith('.vercel.app')
+  ? 'https://lucky-burger-r9nh.onrender.com'
+  : (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://127.0.0.1:5000'
+      : '');
 
 // State variables
 let items = [];
